@@ -5,202 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gerbera OS</title>
   <style>
-    :root {
-      --accent-grad: linear-gradient(135deg, #ffe066 0%, #ff7043 45%, #ff4fa3 100%);
-      --glass: rgba(10, 12, 20, 0.82);
-      --line: rgba(255,255,255,0.22);
-      --text: #f6f8ff;
-      --muted: #bbc0d1;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      font-family: "Segoe UI", Inter, system-ui, sans-serif;
-      background: radial-gradient(circle at 20% 10%, #32203f, #121623 45%, #06080f 100%);
-      overflow: hidden;
-    }
-    .hidden { display: none !important; }
-    .screen { position: fixed; inset: 0; display: grid; place-items: center; }
-    .panel {
-      width: min(840px, 94vw);
-      background: var(--glass);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 1.4rem;
-      box-shadow: 0 16px 60px rgba(0,0,0,.5);
-    }
-    h1,h2,h3,p{margin:0}
-    .logo { font-size: clamp(2rem, 6vw, 3.8rem); }
-    .sub { color: var(--muted); margin-top: .35rem; }
-    .progress { margin-top: 1rem; height: 12px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.12); }
-    .bar { height: 100%; width: 0%; background: var(--accent-grad); transition: width .25s ease; }
+    :root{--grad:linear-gradient(135deg,#ffe066 0%,#ff6a3d 45%,#ff4fa3 100%);--bg:#0a0d18;--panel:rgba(13,16,27,.86);--line:rgba(255,255,255,.2);--text:#f6f8ff;--muted:#b7bdd2}
+    *{box-sizing:border-box} body{margin:0;font-family:"Segoe UI",Inter,system-ui,sans-serif;background:radial-gradient(circle at 20% 10%,#32203f,#121623 45%,#06080f 100%);color:var(--text);overflow:hidden}
+    .hidden{display:none!important}.screen{position:fixed;inset:0;display:grid;place-items:center}
+    .panel{width:min(900px,94vw);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:1.25rem;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+    .progress{height:10px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-top:10px}.bar{height:100%;width:0;background:var(--grad);transition:width .2s}
+    input,button,select{font:inherit}.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+    input,select{width:100%;padding:.6rem .75rem;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text)}
+    button{border:0;padding:.55rem .95rem;border-radius:10px;background:var(--grad);font-weight:700;color:#10131b;cursor:pointer}.ghost{background:rgba(255,255,255,.15);color:#fff;border:1px solid var(--line)}
 
-    .setup-title { font-size: 2.1rem; text-decoration: underline; margin-bottom: .7rem; }
-    .tiny { color: var(--muted); font-size: .9rem; }
-    input,button { font: inherit; }
-    input {
-      width: 100%; padding: .7rem .8rem; border-radius: 10px;
-      border: 1px solid var(--line); background: rgba(255,255,255,.08); color: var(--text);
-      margin-top: .55rem;
-    }
-    .actions { display: flex; justify-content: space-between; margin-top: 1rem; }
-    button {
-      border: 0; border-radius: 10px; padding: .62rem 1rem; cursor: pointer; font-weight: 700;
-      background: var(--accent-grad); color: #161922;
-    }
-    .ghost { background: rgba(255,255,255,.14); color: var(--text); border: 1px solid var(--line); }
-
-    #desktop { position: fixed; inset:0; background: var(--accent-grad); padding: 1rem 1rem 4.4rem; }
-    .overlay { position: absolute; inset:0; background: linear-gradient(180deg, rgba(255,255,255,.15), rgba(0,0,0,.48)); }
-    .desktop-wrap { position: relative; z-index: 2; display: grid; gap: 1rem; }
-    .window {
-      background: rgba(0,0,0,.56); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
-      width: min(1000px, 95vw);
-    }
-    .titlebar { padding: .58rem .8rem; background: rgba(255,255,255,.14); border-bottom: 1px solid var(--line); }
-    .apps-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: .7rem; padding: 1rem;
-    }
-    .app-card {
-      border:1px solid var(--line); background: rgba(255,255,255,.08); color: var(--text);
-      border-radius: 10px; padding: .7rem;
-    }
-    .app-card a {
-      display: inline-block; margin-top: .55rem; text-decoration:none; color: #0f1118;
-      font-weight:700; background: var(--accent-grad); padding:.45rem .65rem; border-radius:8px;
-    }
-
-    .taskbar {
-      position: fixed; left:0; right:0; bottom:0; height:54px;
-      background: rgba(6,8,14,.9); border-top:1px solid rgba(255,255,255,.22);
-      display:flex; align-items:center; gap:.8rem; padding:0 .8rem; z-index:6;
-    }
-    #clock { margin-left:auto; color:#ffd9ec; }
-    .start-menu {
-      position: fixed; bottom: 62px; left: 10px; z-index: 7; width: 260px;
-      border:1px solid var(--line); border-radius: 12px; background: rgba(8,10,18,.96); padding: .75rem;
-    }
+    #desktop{position:fixed;inset:0;background:var(--grad);padding:1rem 1rem 56px}.overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(0,0,0,.55))}
+    .desktop{position:relative;z-index:2;height:100%;display:grid;grid-template-columns:320px 1fr;gap:12px}
+    .launcher,.workspace{background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .title{padding:.55rem .75rem;border-bottom:1px solid var(--line);background:rgba(255,255,255,.14);font-weight:600}
+    .apps{padding:.7rem;display:grid;gap:.6rem;max-height:calc(100vh - 160px);overflow:auto}
+    .app-btn{width:100%;text-align:left;background:rgba(255,255,255,.12);color:#fff;border:1px solid var(--line);padding:.6rem .65rem;border-radius:10px}
+    .app-btn small{display:block;color:var(--muted);font-weight:400}
+    .workspace-body{height:calc(100% - 41px);display:flex;flex-direction:column}
+    .workspace-toolbar{display:flex;gap:.5rem;align-items:center;padding:.5rem .6rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.7)}
+    #appFrame{border:0;flex:1;width:100%;background:#111}
+    .taskbar{position:fixed;left:0;right:0;bottom:0;height:52px;background:rgba(6,8,14,.92);border-top:1px solid rgba(255,255,255,.25);display:flex;align-items:center;gap:.6rem;padding:0 .7rem;z-index:10}
+    #clock{margin-left:auto;color:#ffd5ea}.start{min-width:96px}.menu{position:fixed;left:8px;bottom:60px;z-index:11;width:260px;background:rgba(8,10,18,.97);border:1px solid var(--line);border-radius:12px;padding:.7rem}
   </style>
 </head>
 <body>
-  <section id="loading" class="screen">
-    <div class="panel">
-      <h1 class="logo">Gerbera OS</h1>
-      <p class="sub">Starting your web desktop...</p>
-      <div class="progress"><div class="bar" id="bootBar"></div></div>
-    </div>
-  </section>
+  <section id="loading" class="screen"><div class="panel"><h1>Gerbera OS</h1><p>Booting desktop...</p><div class="progress"><div class="bar" id="bar"></div></div></div></section>
+  <section id="setup" class="screen hidden"><div class="panel"><h2 style="text-decoration:underline">Setup</h2><p id="stepLabel"></p><div id="step" style="margin-top:10px"></div><div class="row" style="justify-content:space-between;margin-top:12px"><button id="back" class="ghost">Back</button><button id="next">Next</button></div></div></section>
 
-  <section id="setup" class="screen hidden">
-    <div class="panel">
-      <h2 class="setup-title">Setup</h2>
-      <p id="stepLabel" class="tiny"></p>
-      <div id="stepArea" style="margin-top:1rem"></div>
-      <div class="actions">
-        <button id="backBtn" class="ghost">Back</button>
-        <button id="nextBtn">Next</button>
-      </div>
-    </div>
-  </section>
+  <section id="desktop" class="hidden"><div class="overlay"></div><div class="desktop">
+    <aside class="launcher"><div class="title">Gerbera Apps</div><div class="apps" id="apps"></div></aside>
+    <main class="workspace"><div class="title" id="winTitle">Welcome/Home hub.exe</div><div class="workspace-body"><div class="workspace-toolbar"><span id="appPath">No app open</span><button id="openTab" class="ghost">Open in new tab</button><button id="refreshApp" class="ghost">Refresh</button></div><iframe id="appFrame" title="Gerbera App"></iframe></div></main>
+  </div></section>
 
-  <section id="desktop" class="hidden">
-    <div class="overlay"></div>
-    <div class="desktop-wrap">
-      <div class="window">
-        <div class="titlebar">Welcome/Home hub.exe</div>
-        <div class="apps-grid" id="appsGrid"></div>
-      </div>
-    </div>
-  </section>
+  <div class="taskbar hidden" id="taskbar"><button class="start" id="startBtn">Start</button><span id="hello">Hello</span><span id="clock"></span></div>
+  <div class="menu hidden" id="menu"><h3 style="margin:0 0 8px">Gerbera Menu</h3><p style="margin:0;color:var(--muted)">System stays visible while apps run in workspace.</p><p style="margin:6px 0 0;color:var(--muted)">Theme: yellow/red/pink gradient.</p></div>
 
-  <div class="taskbar hidden" id="taskbar">
-    <button id="startBtn">Start</button>
-    <span id="helloUser">Hello</span>
-    <span id="clock"></span>
-  </div>
-
-  <div id="startMenu" class="start-menu hidden">
-    <h3>Gerbera Menu</h3>
-    <p class="tiny">Theme: Yellow / Red / Pink Gradient</p>
-    <p class="tiny">Apps are separate HTML files for focused tools.</p>
-  </div>
-
-  <script>
-    const screens = {
-      loading: document.getElementById('loading'),
-      setup: document.getElementById('setup'),
-      desktop: document.getElementById('desktop')
-    };
-
-    const apps = [
-      {name:'Notepad', file:'apps/notepad.html', desc:'Write notes and save locally.'},
-      {name:'Calculator', file:'apps/calculator.html', desc:'Quick arithmetic app.'},
-      {name:'Paint', file:'apps/paint.html', desc:'Draw with brush and clear/export.'},
-      {name:'Files', file:'apps/files.html', desc:'Manage a local file list.'},
-      {name:'Music', file:'apps/music.html', desc:'Simple ambient web player.'},
-      {name:'Photos', file:'apps/photos.html', desc:'Preview image files locally.'},
-      {name:'Browser', file:'apps/browser.html', desc:'Safe mini web launcher.'},
-      {name:'Terminal', file:'apps/terminal.html', desc:'Fake terminal commands.'},
-      {name:'App Store', file:'apps/appstore.html', desc:'Install app shortcuts.'},
-      {name:'Settings', file:'apps/settings.html', desc:'Profile and theme settings.'}
-    ];
-
-    const state = {step:0, name:'', email:'', granted:false};
-    const steps = [
-      () => `<h3>Screen 1</h3><p>What's your name?</p><input id='nameInput' value='${state.name}' placeholder='Gerbera User'/>`,
-      () => `<h3>Screen 2</h3><p>Ask for your email</p><input id='emailInput' type='email' value='${state.email}' placeholder='you@example.com'/>`,
-      () => `<h3>Screen 3</h3><p>Select any files/folders to grant access (local-only).</p><input id='fileInput' type='file' webkitdirectory directory multiple /><p class='tiny'>Nothing is uploaded anywhere.</p>`,
-      () => `<h3>Screen 4</h3><p>You're ready. Click finish to launch Gerbera OS.</p>`
-    ];
-
-    const setCookie = (k,v,d=365)=>{const e=new Date(Date.now()+d*864e5).toUTCString();document.cookie=`${k}=${encodeURIComponent(v)}; expires=${e}; path=/; SameSite=Lax`;};
-    const getCookie = k => document.cookie.split('; ').find(x=>x.startsWith(k+'='))?.split('=')[1];
-
-    function renderApps(){
-      const grid = document.getElementById('appsGrid');
-      grid.innerHTML = apps.map(a=>`<article class='app-card'><strong>${a.name}.exe</strong><p class='tiny'>${a.desc}</p><a href='${a.file}' target='_blank' rel='noopener'>Open</a></article>`).join('');
-    }
-    function renderStep(){
-      document.getElementById('stepLabel').textContent = `Screen ${state.step+1} of ${steps.length}`;
-      document.getElementById('stepArea').innerHTML = steps[state.step]();
-      document.getElementById('backBtn').disabled = state.step===0;
-      document.getElementById('nextBtn').textContent = state.step===steps.length-1 ? 'Finish':'Next';
-    }
-    function persistStep(){
-      const n=document.getElementById('nameInput'), e=document.getElementById('emailInput'), f=document.getElementById('fileInput');
-      if(n) state.name=n.value.trim();
-      if(e) state.email=e.value.trim();
-      if(f) state.granted=f.files.length>0;
-    }
-    function enterDesktop(name){
-      renderApps();
-      screens.setup.classList.add('hidden');
-      screens.desktop.classList.remove('hidden');
-      document.getElementById('taskbar').classList.remove('hidden');
-      document.getElementById('helloUser').textContent = `Hello, ${name || 'User'}`;
-      tick(); setInterval(tick, 1000);
-    }
-    function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});}
-    function boot(){
-      let p=0;const bar=document.getElementById('bootBar');
-      const t=setInterval(()=>{p+=10;bar.style.width=Math.min(100,p)+'%';if(p>=100){clearInterval(t);screens.loading.classList.add('hidden');const saved=getCookie('gerbera_name');if(saved){enterDesktop(decodeURIComponent(saved));}else{screens.setup.classList.remove('hidden');renderStep();}}},120);
-    }
-
-    document.getElementById('backBtn').onclick=()=>{persistStep();state.step=Math.max(0,state.step-1);renderStep();};
-    document.getElementById('nextBtn').onclick=()=>{
-      persistStep();
-      if(state.step===0 && !state.name) return alert('Please enter your name.');
-      if(state.step===1 && !state.email) return alert('Please enter your email.');
-      if(state.step===2 && !state.granted) return alert('Please pick at least one file/folder.');
-      if(state.step<steps.length-1){state.step++;renderStep();}
-      else { setCookie('gerbera_name',state.name);setCookie('gerbera_email',state.email);setCookie('gerbera_file_access',String(state.granted));enterDesktop(state.name); }
-    };
-    document.getElementById('startBtn').onclick=()=>document.getElementById('startMenu').classList.toggle('hidden');
-
-    boot();
-  </script>
+<script>
+const APPS=[
+ {name:'Notepad Pro',file:'apps/notepad.html',desc:'Notes, search, autosave, export'},
+ {name:'Calculator Pro',file:'apps/calculator.html',desc:'History, memory, scientific ops'},
+ {name:'Paint Studio',file:'apps/paint.html',desc:'Brush, colors, sizes, save PNG'},
+ {name:'Files Explorer',file:'apps/files.html',desc:'Folders, rename, tags, JSON backup'},
+ {name:'Music Deck',file:'apps/music.html',desc:'Playlist, local tracks, visualizer'},
+ {name:'Photos Gallery',file:'apps/photos.html',desc:'Grid preview + metadata'},
+ {name:'Browser Hub',file:'apps/browser.html',desc:'Bookmarks and safe launcher'},
+ {name:'Terminal X',file:'apps/terminal.html',desc:'Command simulation + history'},
+ {name:'App Store',file:'apps/appstore.html',desc:'Install/enable packs'},
+ {name:'Settings Center',file:'apps/settings.html',desc:'Profile + appearance settings'}
+];
+const S={step:0,name:'',email:'',grant:false,current:''};
+const steps=[
+ ()=>`<h3>Screen 1</h3><p>What's your name?</p><input id='nm' value='${S.name}' placeholder='Gerbera User'>`,
+ ()=>`<h3>Screen 2</h3><p>What's your email?</p><input id='em' type='email' value='${S.email}' placeholder='you@example.com'>`,
+ ()=>`<h3>Screen 3</h3><p>Grant local file/folder access.</p><input id='fl' type='file' webkitdirectory directory multiple><p>Nothing uploads to a server.</p>`,
+ ()=>`<h3>Screen 4</h3><p>All set. Finish to enter Gerbera OS.</p>`
+];
+const setCookie=(k,v,d=365)=>{const e=new Date(Date.now()+d*864e5).toUTCString();document.cookie=`${k}=${encodeURIComponent(v)}; expires=${e}; path=/; SameSite=Lax`;};
+const getCookie=k=>document.cookie.split('; ').find(x=>x.startsWith(k+'='))?.split('=')[1];
+function renderStep(){stepLabel.textContent=`Screen ${S.step+1} of ${steps.length}`;step.innerHTML=steps[S.step]();next.textContent=S.step===steps.length-1?'Finish':'Next';back.disabled=S.step===0;}
+function persist(){const n=nm,e=em,f=fl;if(n)S.name=n.value.trim();if(e)S.email=e.value.trim();if(f)S.grant=f.files.length>0;}
+function tick(){clock.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});} 
+function renderApps(){apps.innerHTML=APPS.map(a=>`<button class='app-btn' data-file='${a.file}' data-name='${a.name}'><strong>${a.name}</strong><small>${a.desc}</small></button>`).join('');
+ apps.querySelectorAll('button').forEach(b=>b.onclick=()=>openApp(b.dataset.file,b.dataset.name));}
+function openApp(file,name){S.current=file;appFrame.src=file;winTitle.textContent=name;appPath.textContent=file;}
+function enter(name){loading.classList.add('hidden');setup.classList.add('hidden');desktop.classList.remove('hidden');taskbar.classList.remove('hidden');hello.textContent=`Hello, ${name||'User'}`;tick();setInterval(tick,1000);renderApps();openApp('apps/notepad.html','Notepad Pro');}
+function boot(){let p=0;const t=setInterval(()=>{p+=10;bar.style.width=Math.min(100,p)+'%';if(p>=100){clearInterval(t);const saved=getCookie('gerbera_name');if(saved)enter(decodeURIComponent(saved));else{loading.classList.add('hidden');setup.classList.remove('hidden');renderStep();}}},120)}
+back.onclick=()=>{persist();S.step=Math.max(0,S.step-1);renderStep();};
+next.onclick=()=>{persist();if(S.step===0&&!S.name)return alert('Enter name');if(S.step===1&&!S.email)return alert('Enter email');if(S.step===2&&!S.grant)return alert('Choose at least one file/folder');if(S.step<steps.length-1){S.step++;renderStep();}else{setCookie('gerbera_name',S.name);setCookie('gerbera_email',S.email);setCookie('gerbera_file_access',String(S.grant));enter(S.name);}};
+startBtn.onclick=()=>menu.classList.toggle('hidden');
+openTab.onclick=()=>S.current&&window.open(S.current,'_blank','noopener');
+refreshApp.onclick=()=>{if(appFrame.src)appFrame.src=appFrame.src;};
+boot();
+</script>
 </body>
 </html>
