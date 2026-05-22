@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerbera OS</title>
+  <style>
+    :root{--grad:linear-gradient(135deg,#ffe066 0%,#ff6a3d 45%,#ff4fa3 100%);--bg:#0a0d18;--panel:rgba(13,16,27,.86);--line:rgba(255,255,255,.2);--text:#f6f8ff;--muted:#b7bdd2}
+    *{box-sizing:border-box} body{margin:0;font-family:"Segoe UI",Inter,system-ui,sans-serif;background:radial-gradient(circle at 20% 10%,#32203f,#121623 45%,#06080f 100%);color:var(--text);overflow:hidden}
+    .hidden{display:none!important}.screen{position:fixed;inset:0;display:grid;place-items:center}
+    .panel{width:min(900px,94vw);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:1.25rem;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+    .progress{height:10px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-top:10px}.bar{height:100%;width:0;background:var(--grad);transition:width .2s}
+    input,button,select{font:inherit}.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+    input,select{width:100%;padding:.6rem .75rem;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text)}
+    button{border:0;padding:.55rem .95rem;border-radius:10px;background:var(--grad);font-weight:700;color:#10131b;cursor:pointer}.ghost{background:rgba(255,255,255,.15);color:#fff;border:1px solid var(--line)}
+
+    #desktop{position:fixed;inset:0;background:var(--grad);padding:1rem 1rem 56px}.overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(0,0,0,.55))}
+    .desktop{position:relative;z-index:2;height:100%;display:grid;grid-template-columns:320px 1fr;gap:12px}
+    .launcher,.workspace{background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .title{padding:.55rem .75rem;border-bottom:1px solid var(--line);background:rgba(255,255,255,.14);font-weight:600}
+    .apps{padding:.7rem;display:grid;gap:.6rem;max-height:calc(100vh - 160px);overflow:auto}
+    .app-btn{width:100%;text-align:left;background:rgba(255,255,255,.12);color:#fff;border:1px solid var(--line);padding:.6rem .65rem;border-radius:10px}
+    .app-btn small{display:block;color:var(--muted);font-weight:400}
+    .workspace-body{height:calc(100% - 41px);display:flex;flex-direction:column}
+    .workspace-toolbar{display:flex;gap:.5rem;align-items:center;padding:.5rem .6rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.7)}
+    #appFrame{border:0;flex:1;width:100%;background:#111}
+    .taskbar{position:fixed;left:0;right:0;bottom:0;height:52px;background:rgba(6,8,14,.92);border-top:1px solid rgba(255,255,255,.25);display:flex;align-items:center;gap:.6rem;padding:0 .7rem;z-index:10}
+    #clock{margin-left:auto;color:#ffd5ea}.start{min-width:96px}.menu{position:fixed;left:8px;bottom:60px;z-index:11;width:260px;background:rgba(8,10,18,.97);border:1px solid var(--line);border-radius:12px;padding:.7rem}
+  </style>
+</head>
+<body>
+  <section id="loading" class="screen"><div class="panel"><h1>Gerbera OS</h1><p>Booting desktop...</p><div class="progress"><div class="bar" id="bar"></div></div></div></section>
+  <section id="setup" class="screen hidden"><div class="panel"><h2 style="text-decoration:underline">Setup</h2><p id="stepLabel"></p><div id="step" style="margin-top:10px"></div><div class="row" style="justify-content:space-between;margin-top:12px"><button id="back" class="ghost">Back</button><button id="next">Next</button></div></div></section>
+
+  <section id="desktop" class="hidden"><div class="overlay"></div><div class="desktop">
+    <aside class="launcher"><div class="title">Gerbera Apps</div><div class="apps" id="apps"></div></aside>
+    <main class="workspace"><div class="title" id="winTitle">Welcome/Home hub.exe</div><div class="workspace-body"><div class="workspace-toolbar"><span id="appPath">No app open</span><button id="openTab" class="ghost">Open in new tab</button><button id="refreshApp" class="ghost">Refresh</button></div><iframe id="appFrame" title="Gerbera App"></iframe></div></main>
+  </div></section>
+
+  <div class="taskbar hidden" id="taskbar"><button class="start" id="startBtn">Start</button><span id="hello">Hello</span><span id="clock"></span></div>
+  <div class="menu hidden" id="menu"><h3 style="margin:0 0 8px">Gerbera Menu</h3><p style="margin:0;color:var(--muted)">System stays visible while apps run in workspace.</p><p style="margin:6px 0 0;color:var(--muted)">Theme: yellow/red/pink gradient.</p></div>
+
+<script>
+const APPS=[
+ {name:'Notepad Pro',file:'apps/notepad.html',desc:'Notes, search, autosave, export'},
+ {name:'Calculator Pro',file:'apps/calculator.html',desc:'History, memory, scientific ops'},
+ {name:'Paint Studio',file:'apps/paint.html',desc:'Brush, colors, sizes, save PNG'},
+ {name:'Files Explorer',file:'apps/files.html',desc:'Folders, rename, tags, JSON backup'},
+ {name:'Music Deck',file:'apps/music.html',desc:'Playlist, local tracks, visualizer'},
+ {name:'Photos Gallery',file:'apps/photos.html',desc:'Grid preview + metadata'},
+ {name:'Browser Hub',file:'apps/browser.html',desc:'Bookmarks and safe launcher'},
+ {name:'Terminal X',file:'apps/terminal.html',desc:'Command simulation + history'},
+ {name:'App Store',file:'apps/appstore.html',desc:'Install/enable packs'},
+ {name:'Settings Center',file:'apps/settings.html',desc:'Profile + appearance settings'}
+];
+const S={step:0,name:'',email:'',grant:false,current:''};
+const steps=[
+ ()=>`<h3>Screen 1</h3><p>What's your name?</p><input id='nm' value='${S.name}' placeholder='Gerbera User'>`,
+ ()=>`<h3>Screen 2</h3><p>What's your email?</p><input id='em' type='email' value='${S.email}' placeholder='you@example.com'>`,
+ ()=>`<h3>Screen 3</h3><p>Grant local file/folder access.</p><input id='fl' type='file' webkitdirectory directory multiple><p>Nothing uploads to a server.</p>`,
+ ()=>`<h3>Screen 4</h3><p>All set. Finish to enter Gerbera OS.</p>`
+];
+const setCookie=(k,v,d=365)=>{const e=new Date(Date.now()+d*864e5).toUTCString();document.cookie=`${k}=${encodeURIComponent(v)}; expires=${e}; path=/; SameSite=Lax`;};
+const getCookie=k=>document.cookie.split('; ').find(x=>x.startsWith(k+'='))?.split('=')[1];
+function renderStep(){stepLabel.textContent=`Screen ${S.step+1} of ${steps.length}`;step.innerHTML=steps[S.step]();next.textContent=S.step===steps.length-1?'Finish':'Next';back.disabled=S.step===0;}
+function persist(){const n=nm,e=em,f=fl;if(n)S.name=n.value.trim();if(e)S.email=e.value.trim();if(f)S.grant=f.files.length>0;}
+function tick(){clock.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});} 
+function renderApps(){apps.innerHTML=APPS.map(a=>`<button class='app-btn' data-file='${a.file}' data-name='${a.name}'><strong>${a.name}</strong><small>${a.desc}</small></button>`).join('');
+ apps.querySelectorAll('button').forEach(b=>b.onclick=()=>openApp(b.dataset.file,b.dataset.name));}
+function openApp(file,name){S.current=file;appFrame.src=file;winTitle.textContent=name;appPath.textContent=file;}
+function enter(name){loading.classList.add('hidden');setup.classList.add('hidden');desktop.classList.remove('hidden');taskbar.classList.remove('hidden');hello.textContent=`Hello, ${name||'User'}`;tick();setInterval(tick,1000);renderApps();openApp('apps/notepad.html','Notepad Pro');}
+function boot(){let p=0;const t=setInterval(()=>{p+=10;bar.style.width=Math.min(100,p)+'%';if(p>=100){clearInterval(t);const saved=getCookie('gerbera_name');if(saved)enter(decodeURIComponent(saved));else{loading.classList.add('hidden');setup.classList.remove('hidden');renderStep();}}},120)}
+back.onclick=()=>{persist();S.step=Math.max(0,S.step-1);renderStep();};
+next.onclick=()=>{persist();if(S.step===0&&!S.name)return alert('Enter name');if(S.step===1&&!S.email)return alert('Enter email');if(S.step===2&&!S.grant)return alert('Choose at least one file/folder');if(S.step<steps.length-1){S.step++;renderStep();}else{setCookie('gerbera_name',S.name);setCookie('gerbera_email',S.email);setCookie('gerbera_file_access',String(S.grant));enter(S.name);}};
+startBtn.onclick=()=>menu.classList.toggle('hidden');
+openTab.onclick=()=>S.current&&window.open(S.current,'_blank','noopener');
+refreshApp.onclick=()=>{if(appFrame.src)appFrame.src=appFrame.src;};
+boot();
+</script>
+</body>
+</html>
