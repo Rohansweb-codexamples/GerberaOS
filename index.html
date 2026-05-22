@@ -3,273 +3,204 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerbera Web OS</title>
+  <title>Gerbera OS</title>
   <style>
     :root {
-      --accent-grad: linear-gradient(135deg, #ffd84d 0%, #ff6a3d 45%, #ff4fa3 100%);
-      --panel: rgba(10, 10, 18, 0.82);
-      --line: rgba(255,255,255,.22);
-      --text: #f8f8fb;
-      --muted: #b9bdcd;
+      --accent-grad: linear-gradient(135deg, #ffe066 0%, #ff7043 45%, #ff4fa3 100%);
+      --glass: rgba(10, 12, 20, 0.82);
+      --line: rgba(255,255,255,0.22);
+      --text: #f6f8ff;
+      --muted: #bbc0d1;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 15% 15%, #2a2037 0%, #0c0f1f 45%, #05070d 100%);
-      color: var(--text);
       min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", Inter, system-ui, sans-serif;
+      background: radial-gradient(circle at 20% 10%, #32203f, #121623 45%, #06080f 100%);
       overflow: hidden;
     }
     .hidden { display: none !important; }
-
-    .screen {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-    }
+    .screen { position: fixed; inset: 0; display: grid; place-items: center; }
     .panel {
-      width: min(760px, 92vw);
+      width: min(840px, 94vw);
+      background: var(--glass);
       border: 1px solid var(--line);
-      background: var(--panel);
-      backdrop-filter: blur(8px);
-      border-radius: 18px;
-      box-shadow: 0 20px 70px rgba(0,0,0,.55);
-      padding: 1.5rem;
+      border-radius: 16px;
+      padding: 1.4rem;
+      box-shadow: 0 16px 60px rgba(0,0,0,.5);
     }
-    .logo {font-size: clamp(2rem, 6vw, 4rem); margin: 0;}
-    .sub {color: var(--muted); margin-top: .4rem;}
-    .progress {
-      margin-top: 1rem; height: 12px; border-radius: 99px;
-      background: rgba(255,255,255,.12); overflow: hidden;
-    }
-    .bar {height: 100%; width: 0%; background: var(--accent-grad); transition: width .35s ease;}
+    h1,h2,h3,p{margin:0}
+    .logo { font-size: clamp(2rem, 6vw, 3.8rem); }
+    .sub { color: var(--muted); margin-top: .35rem; }
+    .progress { margin-top: 1rem; height: 12px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.12); }
+    .bar { height: 100%; width: 0%; background: var(--accent-grad); transition: width .25s ease; }
 
-    .setup-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
-    .setup-title {font-size: 2.2rem; margin: 0; text-decoration: underline; text-decoration-thickness: .2rem;}
-    .step {margin-top:1.4rem;}
-    .step h3 {margin:0 0 .6rem; font-size:1.2rem; color:#ffe6f2;}
-    label {display:block; margin:.65rem 0 .35rem;}
-    input, button {
-      font: inherit;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-    }
+    .setup-title { font-size: 2.1rem; text-decoration: underline; margin-bottom: .7rem; }
+    .tiny { color: var(--muted); font-size: .9rem; }
+    input,button { font: inherit; }
     input {
-      width:100%; padding:.7rem .8rem;
-      background: rgba(255,255,255,.08);
-      color: var(--text);
+      width: 100%; padding: .7rem .8rem; border-radius: 10px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.08); color: var(--text);
+      margin-top: .55rem;
     }
-    .btn-row{display:flex; justify-content:flex-end; gap:.65rem; margin-top:1rem;}
+    .actions { display: flex; justify-content: space-between; margin-top: 1rem; }
     button {
-      cursor:pointer; color:#10131b; font-weight:700;
-      background: var(--accent-grad); border:none; padding:.65rem 1rem;
+      border: 0; border-radius: 10px; padding: .62rem 1rem; cursor: pointer; font-weight: 700;
+      background: var(--accent-grad); color: #161922;
     }
-    button.ghost { background: rgba(255,255,255,.15); color: var(--text); border:1px solid var(--line);}
+    .ghost { background: rgba(255,255,255,.14); color: var(--text); border: 1px solid var(--line); }
 
-    #desktop {
-      position: fixed; inset: 0;
-      background: var(--accent-grad);
-      padding: 1rem 1rem 4.6rem;
+    #desktop { position: fixed; inset:0; background: var(--accent-grad); padding: 1rem 1rem 4.4rem; }
+    .overlay { position: absolute; inset:0; background: linear-gradient(180deg, rgba(255,255,255,.15), rgba(0,0,0,.48)); }
+    .desktop-wrap { position: relative; z-index: 2; display: grid; gap: 1rem; }
+    .window {
+      background: rgba(0,0,0,.56); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+      width: min(1000px, 95vw);
     }
-    .desktop-overlay {
-      position:absolute; inset:0;
-      background: radial-gradient(circle at 20% 10%, rgba(255,255,255,.3), transparent 45%),
-                  linear-gradient(170deg, rgba(0,0,0,.2), rgba(0,0,0,.55));
+    .titlebar { padding: .58rem .8rem; background: rgba(255,255,255,.14); border-bottom: 1px solid var(--line); }
+    .apps-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: .7rem; padding: 1rem;
     }
-    .desktop-content { position:relative; z-index:2; }
-    .welcome-window {
-      width:min(760px,92vw);
-      background: rgba(0,0,0,.62); border: 1px solid var(--line); border-radius: 12px;
-      overflow:hidden;
+    .app-card {
+      border:1px solid var(--line); background: rgba(255,255,255,.08); color: var(--text);
+      border-radius: 10px; padding: .7rem;
     }
-    .titlebar {
-      padding:.55rem .8rem;
-      background: rgba(255,255,255,.12);
-      border-bottom:1px solid var(--line);
-      font-weight:600;
+    .app-card a {
+      display: inline-block; margin-top: .55rem; text-decoration:none; color: #0f1118;
+      font-weight:700; background: var(--accent-grad); padding:.45rem .65rem; border-radius:8px;
     }
-    .apps {
-      max-height: 52vh; overflow:auto; margin:0; padding: 1rem 1.2rem 1.4rem;
-      list-style:none; font-size:1.15rem; line-height:1.7;
-    }
-    .apps li::before { content:"◻ "; color:#ffd84d; }
 
     .taskbar {
-      position: fixed; left:0; right:0; bottom:0; height:56px; z-index:5;
-      background: rgba(5,7,14,.9); border-top:1px solid rgba(255,255,255,.2);
-      display:flex; align-items:center; gap:.8rem; padding:0 .9rem;
+      position: fixed; left:0; right:0; bottom:0; height:54px;
+      background: rgba(6,8,14,.9); border-top:1px solid rgba(255,255,255,.22);
+      display:flex; align-items:center; gap:.8rem; padding:0 .8rem; z-index:6;
     }
-    .start-btn { min-width:110px; }
-    #clock { margin-left:auto; color:#ffd7ed; }
+    #clock { margin-left:auto; color:#ffd9ec; }
     .start-menu {
-      position: fixed; bottom: 62px; left: 10px; z-index:6;
-      width:260px; background: rgba(8,10,19,.95);
-      border:1px solid var(--line); border-radius: 12px; padding:.75rem;
+      position: fixed; bottom: 62px; left: 10px; z-index: 7; width: 260px;
+      border:1px solid var(--line); border-radius: 12px; background: rgba(8,10,18,.96); padding: .75rem;
     }
-    .start-menu h4{margin:.2rem 0 .65rem;}
-    .tiny {font-size:.9rem; color:var(--muted);}
   </style>
 </head>
 <body>
   <section id="loading" class="screen">
     <div class="panel">
-      <h1 class="logo">Gerbera</h1>
-      <p class="sub">Booting mini web OS...</p>
+      <h1 class="logo">Gerbera OS</h1>
+      <p class="sub">Starting your web desktop...</p>
       <div class="progress"><div class="bar" id="bootBar"></div></div>
     </div>
   </section>
 
   <section id="setup" class="screen hidden">
     <div class="panel">
-      <div class="setup-header">
-        <h2 class="setup-title">Setup</h2>
-        <span class="tiny" id="stepLabel">Screen 1 of 4</span>
-      </div>
-      <div id="stepContent" class="step"></div>
-      <div class="btn-row">
-        <button id="prevBtn" class="ghost">Back</button>
+      <h2 class="setup-title">Setup</h2>
+      <p id="stepLabel" class="tiny"></p>
+      <div id="stepArea" style="margin-top:1rem"></div>
+      <div class="actions">
+        <button id="backBtn" class="ghost">Back</button>
         <button id="nextBtn">Next</button>
       </div>
     </div>
   </section>
 
   <section id="desktop" class="hidden">
-    <div class="desktop-overlay"></div>
-    <div class="desktop-content">
-      <div class="welcome-window">
-        <div class="titlebar" id="windowTitle">Welcome/Home hub.exe</div>
-        <ul class="apps" id="appList"></ul>
+    <div class="overlay"></div>
+    <div class="desktop-wrap">
+      <div class="window">
+        <div class="titlebar">Welcome/Home hub.exe</div>
+        <div class="apps-grid" id="appsGrid"></div>
       </div>
     </div>
   </section>
 
   <div class="taskbar hidden" id="taskbar">
-    <button id="startBtn" class="start-btn">Start ▣</button>
+    <button id="startBtn">Start</button>
     <span id="helloUser">Hello</span>
     <span id="clock"></span>
   </div>
+
   <div id="startMenu" class="start-menu hidden">
-    <h4>Gerbera Menu</h4>
-    <p class="tiny">Theme: Sunset Bloom (yellow/red/pink)</p>
-    <p class="tiny">Tip: Data is saved with cookies.</p>
+    <h3>Gerbera Menu</h3>
+    <p class="tiny">Theme: Yellow / Red / Pink Gradient</p>
+    <p class="tiny">Apps are separate HTML files for focused tools.</p>
   </div>
 
-<script>
-  const screens = {
-    loading: document.getElementById('loading'),
-    setup: document.getElementById('setup'),
-    desktop: document.getElementById('desktop')
-  };
-  const taskbar = document.getElementById('taskbar');
-  const bootBar = document.getElementById('bootBar');
-  const startMenu = document.getElementById('startMenu');
+  <script>
+    const screens = {
+      loading: document.getElementById('loading'),
+      setup: document.getElementById('setup'),
+      desktop: document.getElementById('desktop')
+    };
 
-  const apps = [
-    'Notepad.exe','Settings.exe','Welcome/Home hub.exe','Terminal','App store','App publisher',
-    'Paint','Designer','Browser','Files','Music','Photos','Themes','Customise',
-    'Gerbera Docs','Gerbera Slides','Gerbera Sheets','Gerbera Builder'
-  ];
+    const apps = [
+      {name:'Notepad', file:'apps/notepad.html', desc:'Write notes and save locally.'},
+      {name:'Calculator', file:'apps/calculator.html', desc:'Quick arithmetic app.'},
+      {name:'Paint', file:'apps/paint.html', desc:'Draw with brush and clear/export.'},
+      {name:'Files', file:'apps/files.html', desc:'Manage a local file list.'},
+      {name:'Music', file:'apps/music.html', desc:'Simple ambient web player.'},
+      {name:'Photos', file:'apps/photos.html', desc:'Preview image files locally.'},
+      {name:'Browser', file:'apps/browser.html', desc:'Safe mini web launcher.'},
+      {name:'Terminal', file:'apps/terminal.html', desc:'Fake terminal commands.'},
+      {name:'App Store', file:'apps/appstore.html', desc:'Install app shortcuts.'},
+      {name:'Settings', file:'apps/settings.html', desc:'Profile and theme settings.'}
+    ];
 
-  const state = { step: 0, name: '', email: '', fileAccess: false, theme: 'Sunset Bloom' };
-  const stepContent = document.getElementById('stepContent');
-  const stepLabel = document.getElementById('stepLabel');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
+    const state = {step:0, name:'', email:'', granted:false};
+    const steps = [
+      () => `<h3>Screen 1</h3><p>What's your name?</p><input id='nameInput' value='${state.name}' placeholder='Gerbera User'/>`,
+      () => `<h3>Screen 2</h3><p>Ask for your email</p><input id='emailInput' type='email' value='${state.email}' placeholder='you@example.com'/>`,
+      () => `<h3>Screen 3</h3><p>Select any files/folders to grant access (local-only).</p><input id='fileInput' type='file' webkitdirectory directory multiple /><p class='tiny'>Nothing is uploaded anywhere.</p>`,
+      () => `<h3>Screen 4</h3><p>You're ready. Click finish to launch Gerbera OS.</p>`
+    ];
 
-  const steps = [
-    () => `<h3>Screen 1</h3><p>What's your name?</p><input id="nameInput" placeholder="Gerbera User" value="${state.name}">`,
-    () => `<h3>Screen 2</h3><p>Ask for your email</p><input id="emailInput" type="email" placeholder="you@example.com" value="${state.email}">`,
-    () => `<h3>Screen 3</h3><p>Upload files & folders (simulated for web).</p><label><input id="filesInput" type="file" webkitdirectory directory multiple></label><p class="tiny">This does not upload to a server. It only records that access was granted.</p>`,
-    () => `<h3>Screen 4</h3><p>Do the other windows bits.</p><p>Theme is set to <strong>yellow/red/pink gradient</strong>.</p><p class="tiny">Click Finish to enter Gerbera.</p>`
-  ];
+    const setCookie = (k,v,d=365)=>{const e=new Date(Date.now()+d*864e5).toUTCString();document.cookie=`${k}=${encodeURIComponent(v)}; expires=${e}; path=/; SameSite=Lax`;};
+    const getCookie = k => document.cookie.split('; ').find(x=>x.startsWith(k+'='))?.split('=')[1];
 
-  function setCookie(name, value, days = 365) {
-    const expires = new Date(Date.now() + days * 864e5).toUTCString();
-    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
-  }
-  function getCookie(name) {
-    return document.cookie.split('; ').find(c => c.startsWith(name + '='))?.split('=')[1];
-  }
-
-  function renderStep() {
-    stepLabel.textContent = `Screen ${state.step + 1} of ${steps.length}`;
-    stepContent.innerHTML = steps[state.step]();
-    prevBtn.disabled = state.step === 0;
-    nextBtn.textContent = state.step === steps.length - 1 ? 'Finish' : 'Next';
-  }
-
-  function boot() {
-    let p = 0;
-    const t = setInterval(() => {
-      p += 9;
-      bootBar.style.width = `${Math.min(100, p)}%`;
-      if (p >= 100) {
-        clearInterval(t);
-        screens.loading.classList.add('hidden');
-        const savedName = getCookie('gerbera_name');
-        if (savedName) enterDesktop(decodeURIComponent(savedName));
-        else {
-          screens.setup.classList.remove('hidden');
-          renderStep();
-        }
-      }
-    }, 120);
-  }
-
-  function persistInputs() {
-    const nameInput = document.getElementById('nameInput');
-    const emailInput = document.getElementById('emailInput');
-    const filesInput = document.getElementById('filesInput');
-    if (nameInput) state.name = nameInput.value.trim();
-    if (emailInput) state.email = emailInput.value.trim();
-    if (filesInput) state.fileAccess = filesInput.files.length > 0;
-  }
-
-  function enterDesktop(name) {
-    document.getElementById('appList').innerHTML = apps.map(a => `<li>${a}</li>`).join('');
-    document.getElementById('helloUser').textContent = `Hello, ${name || 'User'}`;
-    screens.setup.classList.add('hidden');
-    screens.desktop.classList.remove('hidden');
-    taskbar.classList.remove('hidden');
-    tickClock();
-    setInterval(tickClock, 1000);
-  }
-
-  function tickClock() {
-    document.getElementById('clock').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  }
-
-  prevBtn.addEventListener('click', () => {
-    persistInputs();
-    state.step = Math.max(0, state.step - 1);
-    renderStep();
-  });
-
-  nextBtn.addEventListener('click', () => {
-    persistInputs();
-    if (state.step === 0 && !state.name) return alert('Please enter your name to continue.');
-    if (state.step === 1 && !state.email) return alert('Please enter your email to continue.');
-    if (state.step === 2 && !state.fileAccess) return alert('Please choose at least one file/folder.');
-
-    if (state.step < steps.length - 1) {
-      state.step += 1;
-      renderStep();
-    } else {
-      setCookie('gerbera_name', state.name);
-      setCookie('gerbera_email', state.email);
-      setCookie('gerbera_theme', state.theme);
-      setCookie('gerbera_file_access', String(state.fileAccess));
-      enterDesktop(state.name);
+    function renderApps(){
+      const grid = document.getElementById('appsGrid');
+      grid.innerHTML = apps.map(a=>`<article class='app-card'><strong>${a.name}.exe</strong><p class='tiny'>${a.desc}</p><a href='${a.file}' target='_blank' rel='noopener'>Open</a></article>`).join('');
     }
-  });
+    function renderStep(){
+      document.getElementById('stepLabel').textContent = `Screen ${state.step+1} of ${steps.length}`;
+      document.getElementById('stepArea').innerHTML = steps[state.step]();
+      document.getElementById('backBtn').disabled = state.step===0;
+      document.getElementById('nextBtn').textContent = state.step===steps.length-1 ? 'Finish':'Next';
+    }
+    function persistStep(){
+      const n=document.getElementById('nameInput'), e=document.getElementById('emailInput'), f=document.getElementById('fileInput');
+      if(n) state.name=n.value.trim();
+      if(e) state.email=e.value.trim();
+      if(f) state.granted=f.files.length>0;
+    }
+    function enterDesktop(name){
+      renderApps();
+      screens.setup.classList.add('hidden');
+      screens.desktop.classList.remove('hidden');
+      document.getElementById('taskbar').classList.remove('hidden');
+      document.getElementById('helloUser').textContent = `Hello, ${name || 'User'}`;
+      tick(); setInterval(tick, 1000);
+    }
+    function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});}
+    function boot(){
+      let p=0;const bar=document.getElementById('bootBar');
+      const t=setInterval(()=>{p+=10;bar.style.width=Math.min(100,p)+'%';if(p>=100){clearInterval(t);screens.loading.classList.add('hidden');const saved=getCookie('gerbera_name');if(saved){enterDesktop(decodeURIComponent(saved));}else{screens.setup.classList.remove('hidden');renderStep();}}},120);
+    }
 
-  document.getElementById('startBtn').addEventListener('click', () => {
-    startMenu.classList.toggle('hidden');
-  });
+    document.getElementById('backBtn').onclick=()=>{persistStep();state.step=Math.max(0,state.step-1);renderStep();};
+    document.getElementById('nextBtn').onclick=()=>{
+      persistStep();
+      if(state.step===0 && !state.name) return alert('Please enter your name.');
+      if(state.step===1 && !state.email) return alert('Please enter your email.');
+      if(state.step===2 && !state.granted) return alert('Please pick at least one file/folder.');
+      if(state.step<steps.length-1){state.step++;renderStep();}
+      else { setCookie('gerbera_name',state.name);setCookie('gerbera_email',state.email);setCookie('gerbera_file_access',String(state.granted));enterDesktop(state.name); }
+    };
+    document.getElementById('startBtn').onclick=()=>document.getElementById('startMenu').classList.toggle('hidden');
 
-  boot();
-</script>
+    boot();
+  </script>
 </body>
 </html>
